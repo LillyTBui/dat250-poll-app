@@ -9,7 +9,7 @@ public class Poll {
     private Set<Vote> votes;
     private Set<VoteOption> voteOptions;
 
-    private User creator;
+    private String creatorId;
     private String visibility;
     private Instant publishedAt;
     private Instant validUntil;
@@ -17,12 +17,12 @@ public class Poll {
     public Poll() {
     }
 
-    public Poll(Instant publishedAt, String question, Set<VoteOption> voteOptions, User creator, String visibility, Instant validUntil) {
-        this.publishedAt = publishedAt;
+    public Poll(String question, String id, String creatorId, String visibility, Instant publishedAt, Instant validUntil) {
         this.question = question;
-        this.voteOptions = voteOptions;
-        this.creator = creator;
+        this.id = id;
+        this.creatorId = creatorId;
         this.visibility = visibility;
+        this.publishedAt = publishedAt;
         this.validUntil = validUntil;
     }
 
@@ -46,8 +46,8 @@ public class Poll {
         return visibility;
     }
 
-    public User getCreator() {
-        return creator;
+    public String getCreatorId() {
+        return creatorId;
     }
 
     public Instant getPublishedAt() {
@@ -74,8 +74,8 @@ public class Poll {
         this.voteOptions = voteOptions;
     }
 
-    public void setCreator(User creator) {
-        this.creator = creator;
+    public void setCreator(String creator) {
+        this.creatorId = creator;
     }
 
     public void setVisibility(String visibility) {

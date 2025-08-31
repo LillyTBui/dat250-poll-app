@@ -4,7 +4,7 @@ import org.dat250.poll.domains.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Collection;
@@ -33,9 +33,23 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<User> createUser(@RequestBody User user, UriComponentsBuilder ucb) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         this.pollManager.add(user);
-        URI location = ucb.path("/users/{id}").buildAndExpand(user.getId()).toUri();
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(user.getId())
+                .toUri();
         return ResponseEntity.created(location).body(user);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+        if (this.pollManager.getUsers().containsKey(id)) {
+            this.pollManager.getUsers().remove(id);
+            return ResponseEntity.noContent().build(); // successful DELETE
+        }
+        return ResponseEntity.badRequest().build(); // Invalid request
+    }
+
 }

@@ -9,25 +9,32 @@ import java.util.*;
 
 @Component
 public class PollManager {
-    private Map<Poll, User> polls = new HashMap<>();
     private Map<Poll, Vote> votes = new HashMap<>();
     private Map<Vote, User> userVotes = new HashMap<>();
+
+    private Map<String, String> userPolls = new HashMap<>();
     private Map<String, User> users = new HashMap<>();
+    private Map<String, Poll> polls = new HashMap<>();
 
-    public void createPoll(Poll poll, User user) {
-        polls.put(poll, user);
-    }
-
-    public Map<Poll, User> getPolls() {
-        return polls;
-    }
-
-    public void setPolls(Map<Poll, User> polls) {
-        this.polls = polls;
-    }
 
     public Map<Vote, User> getUserVotes() {
         return userVotes;
+    }
+
+    public Map<String, Poll> getPolls() {
+        return polls;
+    }
+
+    public void setPolls(Map<String, Poll> polls) {
+        this.polls = polls;
+    }
+
+    public Map<String, String> getUserPolls() {
+        return userPolls;
+    }
+
+    public void setUserPolls(Map<String, String> userPolls) {
+        this.userPolls = userPolls;
     }
 
     public void setUserVotes(Map<Vote, User> userVotes) {
@@ -55,6 +62,14 @@ public class PollManager {
         String uniqueID = UUID.randomUUID().toString();
         user.setId(uniqueID);
         this.users.put(user.getId(), user);
+    }
+
+    // user creates a new poll
+    public void add(Poll poll){
+        String uniqueID = UUID.randomUUID().toString();
+        poll.setId(uniqueID);
+        this.polls.put(poll.getId(), poll);
+        this.userPolls.put(poll.getId(), poll.getCreatorId());
     }
 
 }
