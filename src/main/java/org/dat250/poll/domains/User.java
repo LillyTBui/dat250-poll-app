@@ -1,8 +1,11 @@
 package org.dat250.poll.domains;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class User {
     private String id;
     private String username;
+    @JsonIgnore
     private String password;
     private String email;
 
