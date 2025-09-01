@@ -63,8 +63,19 @@ public class PollManager {
         // check if poll and user exists
         if (this.polls.containsKey(vote.getPollId()) && this.users.containsKey(vote.getUserId())) {
             Poll poll = this.polls.get(vote.getPollId());
-            // check if the voteOption is valid
-            if (poll.getVoteOptions().contains(vote.getVoteOption())) {
+            // check that user does not vote on its own poll
+            if (poll.getCreatorId().equals(vote.getUserId())) {
+                return false;
+            }
+            // check if user has not already voted
+            Set<Vote> votes = poll.getVotes();
+            for (Vote v : votes) {
+                if (v.getUserId().equals(vote.getUserId())){
+                    return false;
+                }
+            }
+            // check that voteOption is valid
+            if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
                 String uniqueID = UUID.randomUUID().toString();
                 vote.setId(uniqueID);
                 poll.addVote(vote);

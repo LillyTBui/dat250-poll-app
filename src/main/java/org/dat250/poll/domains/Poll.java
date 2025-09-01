@@ -2,6 +2,7 @@ package org.dat250.poll.domains;
 
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class Poll {
@@ -89,5 +90,17 @@ public class Poll {
 
     public void setPublishedAt(Instant publishedAt) {
         this.publishedAt = publishedAt;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Poll poll = (Poll) o;
+        return Objects.equals(id, poll.id) && Objects.equals(question, poll.question) && Objects.equals(votes, poll.votes) && Objects.equals(voteOptions, poll.voteOptions) && Objects.equals(creatorId, poll.creatorId) && Objects.equals(visibility, poll.visibility) && Objects.equals(publishedAt, poll.publishedAt) && Objects.equals(validUntil, poll.validUntil);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, question, votes, voteOptions, creatorId, visibility, publishedAt, validUntil);
     }
 }
