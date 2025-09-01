@@ -1,14 +1,14 @@
 package org.dat250.poll.domains;
 
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Poll {
     private String id;
     private String question;
-    private Set<Vote> votes;
-    private Set<VoteOption> voteOptions;
-
+    private Set<Vote> votes = new HashSet<>();
+    private Set<VoteOption> voteOptions = new HashSet<>();
     private String creatorId;
     private String visibility;
     private Instant publishedAt;
@@ -17,10 +17,11 @@ public class Poll {
     public Poll() {
     }
 
-    public Poll(String question, String id, String creatorId, String visibility, Instant publishedAt, Instant validUntil) {
+    public Poll(String question, String id, String creatorId, Set<VoteOption> voteOptions, String visibility, Instant publishedAt, Instant validUntil) {
         this.question = question;
         this.id = id;
         this.creatorId = creatorId;
+        this.voteOptions = voteOptions;
         this.visibility = visibility;
         this.publishedAt = publishedAt;
         this.validUntil = validUntil;
@@ -66,8 +67,8 @@ public class Poll {
         this.question = question;
     }
 
-    public void setVotes(Set<Vote> votes) {
-        this.votes = votes;
+    public void addVote(Vote vote) {
+        this.votes.add(vote);
     }
 
     public void setVoteOptions(Set<VoteOption> voteOptions) {

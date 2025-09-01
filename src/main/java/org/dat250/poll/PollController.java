@@ -1,6 +1,8 @@
 package org.dat250.poll;
 
 import org.dat250.poll.domains.Poll;
+import org.dat250.poll.domains.User;
+import org.dat250.poll.domains.Vote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +31,14 @@ public class PollController {
         // check if user exists
         if (this.pollManager.getUsers().containsKey(poll.getCreatorId())) {
             // create new poll
-            this.pollManager.add(poll);
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(poll.getId())
-                    .toUri();
-            return ResponseEntity.created(location).body(poll); // successful POST
+            if (this.pollManager.add(poll)) {
+                URI location = ServletUriComponentsBuilder
+                        .fromCurrentRequest()
+                        .path("/{id}")
+                        .buildAndExpand(poll.getId())
+                        .toUri();
+                return ResponseEntity.created(location).body(poll); // successful POST
+            }
         }
         return ResponseEntity.badRequest().build(); // invalid request
     }
@@ -43,11 +46,27 @@ public class PollController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePoll(@PathVariable String id) {
         if (this.pollManager.getPolls().containsKey(id)) {
+            Poll poll = this.pollManager.getPolls().get(id);
             // remove poll connected to user
-            this.pollManager.getUserPolls().remove(id);
-            // remove the poll
+            User user = this.pollManager.getUsers().get(poll.getCreatorId());
+            user.removePoll(poll);
+            // remove the poll from manager
             this.pollManager.getPolls().remove(id);
             return ResponseEntity.noContent().build(); // successful DELETE
+        }
+        return ResponseEntity.badRequest().build(); // invalid request
+    }
+
+    @PostMapping("/{pollId}/votes")
+    public ResponseEntity<Vote> votePoll(@PathVariable String pollId, @RequestBody Vote vote) {
+        vote.setPollId(pollId);
+        if (this.pollManager.addVote(vote)) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{voteId}")
+                    .buildAndExpand(vote.getId())
+                    .toUri();
+            return ResponseEntity.created(location).body(vote); // successful POST
         }
         return ResponseEntity.badRequest().build(); // invalid request
     }
