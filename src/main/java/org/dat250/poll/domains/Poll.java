@@ -103,4 +103,8 @@ public class Poll {
     public int hashCode() {
         return Objects.hash(id, question, votes, voteOptions, creatorId, visibility, publishedAt, validUntil);
     }
+
+    public void removeVote(Vote vote) {
+        this.votes.remove(vote);
+    }
 }

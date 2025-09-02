@@ -3,6 +3,7 @@ package org.dat250.poll;
 import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
+import org.dat250.poll.domains.VoteOption;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.*;
 public class PollManager {
     private Map<String, User> users = new HashMap<>();
     private Map<String, Poll> polls = new HashMap<>();
+    private Map<String, Vote> votes = new HashMap<>();
 
     public Map<String, User> getUsers() {
         return users;
@@ -81,8 +83,46 @@ public class PollManager {
                 poll.addVote(vote);
                 User user = this.users.get(vote.getUserId());
                 user.addVote(vote);
+                this.votes.put(vote.getId(), vote);
             }
             return true;
+        }
+        return false;
+    }
+
+    // user updates existing vote
+    public boolean updateVote(String pollId, String voteId, Vote vote) {
+        // check if poll and vote exists
+        if (!this.polls.containsKey(pollId) && !this.votes.containsKey(voteId)) {
+            return false;
+        }
+        // check if user has a vote in the poll
+        Poll poll = this.polls.get(pollId);
+        Set<Vote> votes = poll.getVotes();
+        boolean hasVoted = false;
+        for (Vote v : votes) {
+            if (v.getUserId().equals(vote.getUserId())){
+                hasVoted = true;
+                break;
+            }
+        }
+        if (hasVoted){
+            // check if new vote option is valid
+            User user = this.users.get(vote.getUserId());
+            VoteOption voteOption = vote.getVoteOption();
+            if (poll.getVoteOptions().contains(voteOption) ) {
+                // remove old vote from poll
+                poll.removeVote(vote);
+                // remove old vote from user
+                this.users.get(vote.getUserId()).removeVote(vote);
+                // remove old vote from memory
+                this.votes.remove(voteId);
+                // save new vote
+                poll.addVote(vote);
+                user.addVote(vote);
+                this.votes.put(vote.getId(), vote);
+                return true;
+            }
         }
         return false;
     }

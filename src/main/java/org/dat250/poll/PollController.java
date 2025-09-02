@@ -70,4 +70,13 @@ public class PollController {
         }
         return ResponseEntity.badRequest().build(); // invalid request
     }
+    
+
+    @PutMapping("/{pollId}/votes/{voteId}")
+    public ResponseEntity<Vote> updateVote(@PathVariable String pollId, @PathVariable String voteId, @RequestBody Vote vote) {
+         if (this.pollManager.updateVote(pollId, voteId, vote))  {
+             return ResponseEntity.ok(vote);
+         }
+         return ResponseEntity.notFound().build();
+    }
 }

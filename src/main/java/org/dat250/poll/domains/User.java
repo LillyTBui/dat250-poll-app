@@ -82,4 +82,8 @@ public class User {
     public int hashCode() {
         return Objects.hash(id, username, password, email, polls, votes);
     }
+
+    public void removeVote(Vote vote) {
+        this.votes.remove(vote);
+    }
 }
