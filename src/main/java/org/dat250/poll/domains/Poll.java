@@ -11,21 +11,25 @@ public class Poll {
     private Set<Vote> votes = new HashSet<>();
     private Set<VoteOption> voteOptions = new HashSet<>();
     private String creatorId;
-    private String visibility;
+    private boolean visibility;
     private Instant publishedAt;
     private Instant validUntil;
 
     public Poll() {
     }
 
-    public Poll(String question, String id, String creatorId, Set<VoteOption> voteOptions, String visibility, Instant publishedAt, Instant validUntil) {
-        this.question = question;
+    public Poll(String id, String question, Set<VoteOption> voteOptions, String creatorId, boolean visibility, Instant publishedAt, Instant validUntil) {
         this.id = id;
-        this.creatorId = creatorId;
+        this.question = question;
+        this.votes = votes;
         this.voteOptions = voteOptions;
+        this.creatorId = creatorId;
         this.visibility = visibility;
         this.publishedAt = publishedAt;
         this.validUntil = validUntil;
+    }
+
+    public Poll(String s, Object o, String id, Set<VoteOption> voteOptions, boolean b, Object o1, Object o2) {
     }
 
     public String getId() {
@@ -44,7 +48,7 @@ public class Poll {
         return voteOptions;
     }
 
-    public String getVisibility() {
+    public boolean getVisibility() {
         return visibility;
     }
 
@@ -80,7 +84,7 @@ public class Poll {
         this.creatorId = creator;
     }
 
-    public void setVisibility(String visibility) {
+    public void setVisibility(boolean visibility) {
         this.visibility = visibility;
     }
 
@@ -106,5 +110,19 @@ public class Poll {
 
     public void removeVote(Vote vote) {
         this.votes.remove(vote);
+    }
+
+    @Override
+    public String toString() {
+        return "Poll{" +
+                "id='" + id + '\'' +
+                ", question='" + question + '\'' +
+                ", votes=" + votes +
+                ", voteOptions=" + voteOptions +
+                ", creatorId='" + creatorId + '\'' +
+                ", visibility='" + visibility + '\'' +
+                ", publishedAt=" + publishedAt +
+                ", validUntil=" + validUntil +
+                '}';
     }
 }
