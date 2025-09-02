@@ -16,11 +16,11 @@ public class User {
     public User() {
     }
 
-    public User(String username, String password, String email, String id) {
+    public User(String id, String username, String password, String email) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
-        this.id = id;
     }
 
     public String getId() {
@@ -85,5 +85,17 @@ public class User {
 
     public void removeVote(Vote vote) {
         this.votes.remove(vote);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
+                ", polls=" + polls +
+                ", votes=" + votes +
+                '}';
     }
 }

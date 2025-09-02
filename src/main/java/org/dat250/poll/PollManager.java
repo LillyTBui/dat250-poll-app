@@ -32,8 +32,10 @@ public class PollManager {
 
     // add a new user
     public void add(User user){
-        String uniqueID = UUID.randomUUID().toString();
-        user.setId(uniqueID);
+        if (user.getId() == null){
+            String uniqueID = UUID.randomUUID().toString();
+            user.setId(uniqueID);
+        }
         this.users.put(user.getId(), user);
     }
 
