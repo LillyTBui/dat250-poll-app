@@ -118,6 +118,8 @@ public class PollManager {
                 // remove old vote from memory
                 this.votes.remove(voteId);
                 // save new vote
+                vote.setId(voteId);
+                vote.setPollId(pollId);
                 poll.addVote(vote);
                 user.addVote(vote);
                 this.votes.put(vote.getId(), vote);

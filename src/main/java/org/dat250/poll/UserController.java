@@ -1,6 +1,7 @@
 package org.dat250.poll;
 
 import org.dat250.poll.domains.User;
+import org.dat250.poll.domains.Vote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,12 @@ public class UserController {
     public ResponseEntity<Collection<User>> getUsers(){
         Collection<User> users = this.pollManager.getUsers().values();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/{id}/votes")
+    public ResponseEntity<Collection<Vote>> getVotes(@PathVariable String id){
+        User user = this.pollManager.getUsers().get(id);
+        return ResponseEntity.ok(user.getVotes());
     }
 
     @PostMapping()
