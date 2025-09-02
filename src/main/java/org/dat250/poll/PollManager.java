@@ -128,4 +128,24 @@ public class PollManager {
         }
         return false;
     }
+
+    public boolean deletePoll(String id) {
+        // check if poll exists
+        if (this.polls.containsKey(id)) {
+            Poll poll = this.polls.get(id);
+            // remove poll connected to user
+            User user = this.users.get(poll.getCreatorId());
+            user.removePoll(poll);
+            // remove the votes
+            for (Vote vote : poll.getVotes()) {
+                User votedUser = this.users.get(vote.getUserId());
+                votedUser.removeVote(vote);
+                this.votes.remove(vote.getId());
+            }
+            // remove the poll from manager
+            this.polls.remove(id);
+            return true;
+        }
+        return false;
+    }
 }

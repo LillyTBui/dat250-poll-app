@@ -45,13 +45,7 @@ public class PollController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePoll(@PathVariable String id) {
-        if (this.pollManager.getPolls().containsKey(id)) {
-            Poll poll = this.pollManager.getPolls().get(id);
-            // remove poll connected to user
-            User user = this.pollManager.getUsers().get(poll.getCreatorId());
-            user.removePoll(poll);
-            // remove the poll from manager
-            this.pollManager.getPolls().remove(id);
+        if (this.pollManager.deletePoll(id)) {
             return ResponseEntity.noContent().build(); // successful DELETE
         }
         return ResponseEntity.badRequest().build(); // invalid request
@@ -70,7 +64,6 @@ public class PollController {
         }
         return ResponseEntity.badRequest().build(); // invalid request
     }
-    
 
     @PutMapping("/{pollId}/votes/{voteId}")
     public ResponseEntity<Vote> updateVote(@PathVariable String pollId, @PathVariable String voteId, @RequestBody Vote vote) {
