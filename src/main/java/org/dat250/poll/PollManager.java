@@ -5,7 +5,6 @@ import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
 import org.dat250.poll.domains.VoteOption;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -135,7 +134,7 @@ public class PollManager {
                 // remove old vote from poll
                 poll.removeVote(vote);
                 // remove old vote from user
-                this.users.get(vote.getUserId()).removeVote(vote);
+                user.removeVote(vote.getId());
                 // remove old vote from memory
                 this.votes.remove(voteId);
                 // save new vote
@@ -160,7 +159,7 @@ public class PollManager {
             // remove the votes
             for (Vote vote : poll.getVotes()) {
                 User votedUser = this.users.get(vote.getUserId());
-                votedUser.removeVote(vote);
+                votedUser.removeVote(vote.getId());
                 this.votes.remove(vote.getId());
             }
             // remove the poll from manager

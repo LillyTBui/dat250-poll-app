@@ -9,6 +9,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -34,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/votes")
-    public ResponseEntity<Collection<Vote>> getVotes(@PathVariable int id){
+    public ResponseEntity<Map<Integer, Vote>> getVotes(@PathVariable int id){
         User user = this.pollManager.getUsers().get(id);
         return ResponseEntity.ok(user.getVotes());
     }

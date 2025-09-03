@@ -4,7 +4,10 @@ import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
 import org.dat250.poll.domains.VoteOption;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -18,6 +21,7 @@ import java.util.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PollControllerTest {
     private final RestClient restClient;
     private final RestClient userRestClient;
@@ -31,6 +35,7 @@ public class PollControllerTest {
     }
 
     @Test
+    @Order(1)
     public void createPoll() {
         // create user
         User user = new User(1, "user", "userpassword", "user@hotmail.com");
@@ -48,6 +53,7 @@ public class PollControllerTest {
     }
 
     @Test
+    @Order(2)
     public void getPolls(){
         // add another Poll
         Set<VoteOption> voteOptions = createVoteOption();
@@ -65,27 +71,12 @@ public class PollControllerTest {
     }
 
     @Test
-    public void deletePoll(){
-        ResponseEntity<Poll> result = restClient.delete().uri("/{id}", 1).retrieve().toEntity(Poll.class);
-        System.out.println(result.getBody());
-        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
-
-    @Test
+    @Order(3)
     public void addVote(){
-        Map<Integer, User> users = this.pollManager.getUsers();
-        Map<Integer, Poll> polls = this.pollManager.getPolls();
-        while(users.size() < 2){
-            // create user
-            User user = new User(1, "user", "userpassword", "user@hotmail.com");
-            userRestClient.post().uri("").body(user).retrieve().toEntity(User.class);
-        }
-        if (polls.isEmpty()) {
-            // add poll
-            Set<VoteOption> voteOptions = createVoteOption();
-            ResponseEntity<Poll> pollResult = createPoll(1, voteOptions);
-        }
-        System.out.println(this.pollManager.getPolls());
+        // create second user
+        User user = new User(2, "user2", "userpassword2", "user2@hotmail.com");
+        userRestClient.post().uri("").body(user).retrieve().toEntity(User.class);
+
         // the second user votes on the poll the first user created
         VoteOption voteOption = new VoteOption("Red", 0);
         Vote vote = new Vote(0, 1 , 2, voteOption, null, true);
@@ -97,7 +88,9 @@ public class PollControllerTest {
     }
 
     @Test
-    public void updatePoll(){
+    @Order(4)
+    public void updateVote(){
+        // second user updates their vote on poll 1
         VoteOption voteOption = new VoteOption("Green", 1);
         Vote vote = new Vote(1, 1 , 2, voteOption, null, true);
         ResponseEntity<Vote> result = restClient.put().uri("/{pollId}/votes/{voteId}", 1, 1).body(vote).retrieve().toEntity(Vote.class);
@@ -105,7 +98,40 @@ public class PollControllerTest {
         System.out.println(result.getBody());
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
 
+    @Test
+    @Order(5)
+    public void getUserVote(){
+        // retrieve the vote we made for second user)
+        ResponseEntity<Map<Integer, Vote>> userVotes = userRestClient.get().uri("/{id}/votes", 2).retrieve().toEntity(new ParameterizedTypeReference<Map<Integer, Vote>>() {});
+
+        System.out.println(userVotes.getBody());
+
+        assertThat(userVotes.getStatusCode()).isEqualTo(HttpStatus.OK);
+        // should only be one vote as we update existing vote
+        assertThat(userVotes.getBody().size()).isEqualTo(1);
+    }
+
+    @Test
+    @Order(6)
+    public void deletePoll(){
+        ResponseEntity<Poll> result = restClient.delete().uri("/{id}", 1).retrieve().toEntity(Poll.class);
+        System.out.println(result.getBody());
+        assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    @Order(7)
+    public void getUserVoteAfterDeletingPoll(){
+        // retrieve the vote we made for second user)
+        ResponseEntity<Map<Integer, Vote>> userVotes = userRestClient.get().uri("/{id}/votes", 2).retrieve().toEntity(new ParameterizedTypeReference<Map<Integer, Vote>>() {});
+
+        System.out.println(userVotes.getBody());
+
+        assertThat(userVotes.getStatusCode()).isEqualTo(HttpStatus.OK);
+        // should not be any votes after poll is deleted
+        assertThat(userVotes.getBody().size()).isEqualTo(0);
     }
 
     private ResponseEntity<Poll> createPoll(int creatorId, Set<VoteOption> voteOptions) {

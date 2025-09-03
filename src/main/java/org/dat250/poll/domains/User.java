@@ -15,10 +15,10 @@ public class User {
     private String password;
     private String email;
     private final Set<Poll> polls = new HashSet<>();
-    private final Set<Vote> votes = new HashSet<>();
+    private final Map<Integer, Vote> votes = new HashMap<>();
 
     public void addVote(Vote vote) {
-        this.votes.add(vote);
+        this.votes.put(vote.getId(), vote);
     }
 
     public void addPoll(Poll poll) {
@@ -29,7 +29,7 @@ public class User {
         this.polls.remove(poll);
     }
 
-    public void removeVote(Vote vote) {
-        this.votes.remove(vote);
+    public void removeVote(int voteId) {
+        this.votes.remove(voteId);
     }
 }
