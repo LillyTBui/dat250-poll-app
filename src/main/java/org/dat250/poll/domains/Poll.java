@@ -1,128 +1,29 @@
 package org.dat250.poll.domains;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
+@Data
+@AllArgsConstructor
 public class Poll {
-    private String id;
+    private int id;
     private String question;
-    private Set<Vote> votes = new HashSet<>();
+    private final Set<Vote> votes = new HashSet<>();
     private Set<VoteOption> voteOptions = new HashSet<>();
-    private String creatorId;
+    private int creatorId;
     private boolean visibility;
     private Instant publishedAt;
     private Instant validUntil;
-
-    public Poll() {
-    }
-
-    public Poll(String id, String question, Set<VoteOption> voteOptions, String creatorId, boolean visibility, Instant publishedAt, Instant validUntil) {
-        this.id = id;
-        this.question = question;
-        this.votes = votes;
-        this.voteOptions = voteOptions;
-        this.creatorId = creatorId;
-        this.visibility = visibility;
-        this.publishedAt = publishedAt;
-        this.validUntil = validUntil;
-    }
-
-    public Poll(String s, Object o, String id, Set<VoteOption> voteOptions, boolean b, Object o1, Object o2) {
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getQuestion() {
-        return question;
-    }
-
-    public Set<Vote> getVotes() {
-        return votes;
-    }
-
-    public Set<VoteOption> getVoteOptions() {
-        return voteOptions;
-    }
-
-    public boolean getVisibility() {
-        return visibility;
-    }
-
-    public String getCreatorId() {
-        return creatorId;
-    }
-
-    public Instant getPublishedAt() {
-        return publishedAt;
-    }
-
-    public Instant getValidUntil() {
-        return validUntil;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public void setQuestion(String question) {
-        this.question = question;
-    }
-
-    public void addVote(Vote vote) {
-        this.votes.add(vote);
-    }
-
-    public void setVoteOptions(Set<VoteOption> voteOptions) {
-        this.voteOptions = voteOptions;
-    }
-
-    public void setCreator(String creator) {
-        this.creatorId = creator;
-    }
-
-    public void setVisibility(boolean visibility) {
-        this.visibility = visibility;
-    }
-
-    public void setValidUntil(Instant validUntil) {
-        this.validUntil = validUntil;
-    }
-
-    public void setPublishedAt(Instant publishedAt) {
-        this.publishedAt = publishedAt;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Poll poll = (Poll) o;
-        return Objects.equals(id, poll.id) && Objects.equals(question, poll.question) && Objects.equals(votes, poll.votes) && Objects.equals(voteOptions, poll.voteOptions) && Objects.equals(creatorId, poll.creatorId) && Objects.equals(visibility, poll.visibility) && Objects.equals(publishedAt, poll.publishedAt) && Objects.equals(validUntil, poll.validUntil);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, question, votes, voteOptions, creatorId, visibility, publishedAt, validUntil);
-    }
 
     public void removeVote(Vote vote) {
         this.votes.remove(vote);
     }
 
-    @Override
-    public String toString() {
-        return "Poll{" +
-                "id='" + id + '\'' +
-                ", question='" + question + '\'' +
-                ", votes=" + votes +
-                ", voteOptions=" + voteOptions +
-                ", creatorId='" + creatorId + '\'' +
-                ", visibility='" + visibility + '\'' +
-                ", publishedAt=" + publishedAt +
-                ", validUntil=" + validUntil +
-                '}';
+    public void addVote(Vote vote) {
+        this.votes.add(vote);
     }
 }

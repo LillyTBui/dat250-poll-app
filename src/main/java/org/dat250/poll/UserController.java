@@ -20,7 +20,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable String id){
+    public ResponseEntity<User> getUser(@PathVariable int id){
         if (this.pollManager.getUsers().containsKey(id)) {
             return ResponseEntity.ok(this.pollManager.getUsers().get(id));
         }
@@ -34,29 +34,29 @@ public class UserController {
     }
 
     @GetMapping("/{id}/votes")
-    public ResponseEntity<Collection<Vote>> getVotes(@PathVariable String id){
+    public ResponseEntity<Collection<Vote>> getVotes(@PathVariable int id){
         User user = this.pollManager.getUsers().get(id);
         return ResponseEntity.ok(user.getVotes());
     }
 
     @PostMapping()
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        this.pollManager.add(user);
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(user.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(user);
+        if (this.pollManager.add(user)) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(user.getId())
+                    .toUri();
+            return ResponseEntity.created(location).body(user); // successful POST
+        };
+        return  ResponseEntity.badRequest().build(); // Invalid request
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
-        if (this.pollManager.getUsers().containsKey(id)) {
-            this.pollManager.getUsers().remove(id);
+    public ResponseEntity<Void> deleteUser(@PathVariable int id) {
+        if (this.pollManager.removeUser(id)) {
             return ResponseEntity.noContent().build(); // successful DELETE
         }
         return ResponseEntity.badRequest().build(); // Invalid request
     }
-
 }

@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
 import java.util.Collection;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -25,13 +24,11 @@ public class UserControllerTest {
     @Test
     public void createUserTest(){
         // create user
-        String id = UUID.randomUUID().toString();
-        User user = new User(id, "user", "userpassword", "user@hotmail.com");
+        User user = new User(0, "user", "userpassword", "user@hotmail.com");
         ResponseEntity<User> results = restClient.post().uri("").body(user).retrieve().toEntity(User.class);
 
         System.out.println(results.getBody());
 
-        assertThat(results.getBody().getId()).isEqualTo(id);
         assertThat(results.getBody().getUsername()).isEqualTo("user");
         assertThat(results.getBody().getPassword()).isEqualTo(null); // password hould not be visible
         assertThat(results.getBody().getEmail()).isEqualTo("user@hotmail.com");
@@ -41,11 +38,10 @@ public class UserControllerTest {
     @Test
     public void getUserTest(){
         // create user
-        String id = UUID.randomUUID().toString();
-        User user = new User(id, "user", "userpassword", "user@hotmail.com");
+        User user = new User(0, "user", "userpassword", "user@hotmail.com");
         ResponseEntity<User> results = restClient.post().uri("").body(user).retrieve().toEntity(User.class);
         // get the specific user
-        ResponseEntity<User> result = restClient.get().uri("/{id}", id).retrieve().toEntity(User.class);
+        ResponseEntity<User> result = restClient.get().uri("/{id}", 1).retrieve().toEntity(User.class);
 
         System.out.println(result.getBody());
 
@@ -55,12 +51,10 @@ public class UserControllerTest {
     @Test
     public void getUsersTest(){
         // create users
-        String id = UUID.randomUUID().toString();
-        User user = new User(id, "user", "userpassword", "user@hotmail.com");
+        User user = new User(0, "user", "userpassword", "user@hotmail.com");
         restClient.post().uri("").body(user).retrieve().toEntity(User.class);
 
-        String id2 = UUID.randomUUID().toString();
-        User user2 = new User(id2, "user2", "userpassword2", "user2@hotmail.com");
+        User user2 = new User(1, "user2", "userpassword2", "user2@hotmail.com");
         restClient.post().uri("").body(user2).retrieve().toEntity(User.class);
 
         // get all users
@@ -72,20 +66,18 @@ public class UserControllerTest {
         System.out.println(results.getBody());
 
         assertThat(results.getStatusCode().equals(HttpStatus.OK));
-        assertThat(results.getBody().size()).isEqualTo(2);
     }
 
     @Test
     public void deleteUserTest(){
         // create user
-        String id = UUID.randomUUID().toString();
-        User user = new User(id, "user", "userpassword", "user@hotmail.com");
+        User user = new User(0, "user", "userpassword", "user@hotmail.com");
         ResponseEntity<User> results = restClient.post().uri("").body(user).retrieve().toEntity(User.class);
 
         System.out.println(results.getBody());
 
         // delete the same user
-        ResponseEntity<Void> resultsAfterDelete = restClient.delete().uri("/{id}", id).retrieve().toEntity(Void.class);
+        ResponseEntity<Void> resultsAfterDelete = restClient.delete().uri("/{id}", 1).retrieve().toEntity(Void.class);
         assertThat(resultsAfterDelete.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }

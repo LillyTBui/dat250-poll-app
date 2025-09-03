@@ -1,62 +1,82 @@
 package org.dat250.poll;
 
+import lombok.Data;
 import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
 import org.dat250.poll.domains.VoteOption;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
+@Data
 public class PollManager {
-    private Map<String, User> users = new HashMap<>();
-    private Map<String, Poll> polls = new HashMap<>();
-    private Map<String, Vote> votes = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, Poll> polls = new HashMap<>();
+    private final Map<Integer, Vote> votes = new HashMap<>();
 
-    public Map<String, User> getUsers() {
-        return users;
+    private final AtomicInteger nextId = new AtomicInteger(0);
+    private final AtomicInteger pollId = new AtomicInteger(0);
+    private final AtomicInteger voteId = new AtomicInteger(0);
+
+    public Integer getNextId() {
+        return nextId.incrementAndGet();
     }
 
-    public void setUsers(Map<String, User> users) {
-        this.users = users;
+    public Integer getPollId() {
+        return pollId.incrementAndGet();
     }
 
-    public Map<String, Poll> getPolls() {
-        return polls;
-    }
-
-    public void setPolls(Map<String, Poll> polls) {
-        this.polls = polls;
+    public Integer getVoteId() {
+        return voteId.incrementAndGet();
     }
 
     // add a new user
-    public void add(User user){
-        if (user.getId() == null){
-            String uniqueID = UUID.randomUUID().toString();
-            user.setId(uniqueID);
+    public boolean add(User user){
+        // check if user has the mandatory fields
+        if (!user.getUsername().isEmpty() && !user.getEmail().isEmpty()) {
+            user.setId(getNextId());
+            this.users.put(user.getId(), user);
+            return true;
         }
-        this.users.put(user.getId(), user);
+        return false;
+    }
+
+    // remove a user
+    public boolean removeUser(int userId){
+        if (this.users.containsKey(userId)) {
+            this.users.remove(userId);
+            return true;
+        }
+        return false;
     }
 
     // user creates a new poll
     public boolean add(Poll poll){
-        // a poll must have a question and a set of voting options
+        // check if user exists
+        if (!this.users.containsKey(poll.getCreatorId())) {
+            return false;
+        }
+
+        // a poll must have a question
         if (poll.getQuestion() == null || poll.getQuestion().isEmpty()){
             return false;
         }
+        // a poll must have at least 2 voting options
         if (poll.getVoteOptions() == null || poll.getVoteOptions().size() < 2){
             return false;
         }
 
         // add newly created poll to manager
-        String uniqueID = UUID.randomUUID().toString();
-        poll.setId(uniqueID);
+        poll.setId(getPollId());
         this.polls.put(poll.getId(), poll);
 
         // add the poll to the user's list
-        String userID = poll.getCreatorId();
-        User user = users.get(userID);
+        int userID = poll.getCreatorId();
+        User user = this.users.get(userID);
         user.addPoll(poll);
 
         return true;
@@ -68,20 +88,19 @@ public class PollManager {
         if (this.polls.containsKey(vote.getPollId()) && this.users.containsKey(vote.getUserId())) {
             Poll poll = this.polls.get(vote.getPollId());
             // check that user does not vote on its own poll
-            if (poll.getCreatorId().equals(vote.getUserId())) {
+            if (poll.getCreatorId() == vote.getUserId()) {
                 return false;
             }
             // check if user has not already voted
             Set<Vote> votes = poll.getVotes();
             for (Vote v : votes) {
-                if (v.getUserId().equals(vote.getUserId())){
+                if (v.getUserId() == vote.getUserId()){
                     return false;
                 }
             }
             // check that voteOption is valid
             if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
-                String uniqueID = UUID.randomUUID().toString();
-                vote.setId(uniqueID);
+                vote.setId(getVoteId());
                 poll.addVote(vote);
                 User user = this.users.get(vote.getUserId());
                 user.addVote(vote);
@@ -93,7 +112,7 @@ public class PollManager {
     }
 
     // user updates existing vote
-    public boolean updateVote(String pollId, String voteId, Vote vote) {
+    public boolean updateVote(int pollId, int voteId, Vote vote) {
         // check if poll and vote exists
         if (!this.polls.containsKey(pollId) && !this.votes.containsKey(voteId)) {
             return false;
@@ -103,7 +122,7 @@ public class PollManager {
         Set<Vote> votes = poll.getVotes();
         boolean hasVoted = false;
         for (Vote v : votes) {
-            if (v.getUserId().equals(vote.getUserId())){
+            if (v.getUserId() == vote.getUserId()){
                 hasVoted = true;
                 break;
             }
@@ -120,8 +139,8 @@ public class PollManager {
                 // remove old vote from memory
                 this.votes.remove(voteId);
                 // save new vote
-                vote.setId(voteId);
-                vote.setPollId(pollId);
+                vote.setId(voteId); // keep the old voteID
+                vote.setPollId(pollId); // keep the same pollID
                 poll.addVote(vote);
                 user.addVote(vote);
                 this.votes.put(vote.getId(), vote);
@@ -131,7 +150,7 @@ public class PollManager {
         return false;
     }
 
-    public boolean deletePoll(String id) {
+    public boolean deletePoll(int id) {
         // check if poll exists
         if (this.polls.containsKey(id)) {
             Poll poll = this.polls.get(id);

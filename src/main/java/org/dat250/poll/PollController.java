@@ -1,7 +1,6 @@
 package org.dat250.poll;
 
 import org.dat250.poll.domains.Poll;
-import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,23 +27,19 @@ public class PollController {
 
     @PostMapping
     public ResponseEntity<Poll> createPoll(@RequestBody Poll poll) {
-        // check if user exists
-        if (this.pollManager.getUsers().containsKey(poll.getCreatorId())) {
-            // create new poll
-            if (this.pollManager.add(poll)) {
-                URI location = ServletUriComponentsBuilder
-                        .fromCurrentRequest()
-                        .path("/{id}")
-                        .buildAndExpand(poll.getId())
-                        .toUri();
-                return ResponseEntity.created(location).body(poll); // successful POST
-            }
+        if (this.pollManager.add(poll)) {
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(poll.getId())
+                    .toUri();
+            return ResponseEntity.created(location).body(poll); // successful POST
         }
         return ResponseEntity.badRequest().build(); // invalid request
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePoll(@PathVariable String id) {
+    public ResponseEntity<Void> deletePoll(@PathVariable int id) {
         if (this.pollManager.deletePoll(id)) {
             return ResponseEntity.noContent().build(); // successful DELETE
         }
@@ -52,7 +47,7 @@ public class PollController {
     }
 
     @PostMapping("/{pollId}/votes")
-    public ResponseEntity<Vote> votePoll(@PathVariable String pollId, @RequestBody Vote vote) {
+    public ResponseEntity<Vote> votePoll(@PathVariable int pollId, @RequestBody Vote vote) {
         vote.setPollId(pollId);
         if (this.pollManager.addVote(vote)) {
             URI location = ServletUriComponentsBuilder
@@ -66,7 +61,7 @@ public class PollController {
     }
 
     @PutMapping("/{pollId}/votes/{voteId}")
-    public ResponseEntity<Vote> updateVote(@PathVariable String pollId, @PathVariable String voteId, @RequestBody Vote vote) {
+    public ResponseEntity<Vote> updateVote(@PathVariable int pollId, @PathVariable int voteId, @RequestBody Vote vote) {
          if (this.pollManager.updateVote(pollId, voteId, vote))  {
              return ResponseEntity.ok(vote);
          }
