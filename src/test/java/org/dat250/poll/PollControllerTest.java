@@ -13,9 +13,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -42,7 +45,7 @@ public class PollControllerTest {
         userRestClient.post().uri("").body(user).retrieve().toEntity(User.class);
 
         Set<VoteOption> voteOptions = createVoteOption();
-        ResponseEntity<Poll> result = createPoll(1, voteOptions);
+        ResponseEntity<Poll> result = createPoll(1, voteOptions, null);
 
         System.out.println(result.getBody());
 
@@ -56,8 +59,7 @@ public class PollControllerTest {
     @Order(2)
     public void getPolls(){
         // add another Poll
-        Set<VoteOption> voteOptions = createVoteOption();
-        ResponseEntity<Poll> result = createPoll(1, voteOptions);
+        ResponseEntity<Poll> result = createPoll(1, createVoteOption(), Instant.now().plus(Duration.ofDays(70)));
 
         ResponseEntity<Collection<Poll>> results = restClient.get()
                 .uri("")
@@ -79,7 +81,7 @@ public class PollControllerTest {
 
         // the second user votes on the poll the first user created
         VoteOption voteOption = new VoteOption("Red", 0);
-        Vote vote = new Vote(0, 1 , 2, voteOption, null, true);
+        Vote vote = new Vote(0, 1 , 2, voteOption, null);
         ResponseEntity<Vote> result = restClient.post().uri("/{pollId}/votes", 1).body(vote).retrieve().toEntity(Vote.class);
 
         System.out.println(result.getBody());
@@ -89,10 +91,25 @@ public class PollControllerTest {
 
     @Test
     @Order(4)
+    public void invalidVote(){
+        // the second user votes on the second poll but is not within publishedAt and validUntil
+        VoteOption voteOption = new VoteOption("Red", 0);
+        Vote vote = new Vote(1, 2 , 2, voteOption, null);
+
+        String result = restClient.post().uri("/{pollId}/votes", 2).body(vote).retrieve().onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+        }).body(String.class);
+
+        System.out.println(result);
+
+        assertThat(Objects.equals(result, "null"));
+    }
+
+    @Test
+    @Order(5)
     public void updateVote(){
         // second user updates their vote on poll 1
         VoteOption voteOption = new VoteOption("Green", 1);
-        Vote vote = new Vote(1, 1 , 2, voteOption, null, true);
+        Vote vote = new Vote(1, 1 , 2, voteOption, null);
         ResponseEntity<Vote> result = restClient.put().uri("/{pollId}/votes/{voteId}", 1, 1).body(vote).retrieve().toEntity(Vote.class);
 
         System.out.println(result.getBody());
@@ -101,7 +118,7 @@ public class PollControllerTest {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     public void getUserVote(){
         // retrieve the vote we made for second user)
         ResponseEntity<Map<Integer, Vote>> userVotes = userRestClient.get().uri("/{id}/votes", 2).retrieve().toEntity(new ParameterizedTypeReference<Map<Integer, Vote>>() {});
@@ -114,7 +131,7 @@ public class PollControllerTest {
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     public void deletePoll(){
         ResponseEntity<Poll> result = restClient.delete().uri("/{id}", 1).retrieve().toEntity(Poll.class);
         System.out.println(result.getBody());
@@ -122,7 +139,7 @@ public class PollControllerTest {
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     public void getUserVoteAfterDeletingPoll(){
         // retrieve the vote we made for second user)
         ResponseEntity<Map<Integer, Vote>> userVotes = userRestClient.get().uri("/{id}/votes", 2).retrieve().toEntity(new ParameterizedTypeReference<Map<Integer, Vote>>() {});
@@ -134,9 +151,9 @@ public class PollControllerTest {
         assertThat(userVotes.getBody().size()).isEqualTo(0);
     }
 
-    private ResponseEntity<Poll> createPoll(int creatorId, Set<VoteOption> voteOptions) {
+    private ResponseEntity<Poll> createPoll(int creatorId, Set<VoteOption> voteOptions, Instant publishedAt) {
         // create a new poll
-        Poll poll = new Poll(0, "What is your favorite color?", voteOptions, creatorId, false, null, null);
+        Poll poll = new Poll(0, "What is your favorite color?", voteOptions, creatorId, false, publishedAt, null);
         return restClient.post().uri("").body(poll).retrieve().toEntity(Poll.class);
     }
 

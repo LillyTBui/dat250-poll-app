@@ -13,5 +13,4 @@ public class Vote {
     private int userId;
     private VoteOption voteOption;
     private Instant publishedAt;
-    private boolean isValid;
 }

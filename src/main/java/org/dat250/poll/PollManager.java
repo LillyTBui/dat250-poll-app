@@ -7,6 +7,8 @@ import org.dat250.poll.domains.Vote;
 import org.dat250.poll.domains.VoteOption;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -69,6 +71,14 @@ public class PollManager {
             return false;
         }
 
+        // if publishedAt and validUntil are not set by user, then set default values
+        if (poll.getPublishedAt() == null){
+            poll.setPublishedAt(Instant.now());
+        }
+        if (poll.getValidUntil() == null){
+            poll.setValidUntil(poll.getPublishedAt().plus(Duration.ofDays(7)));
+        }
+
         // add newly created poll to manager
         poll.setId(getPollId());
         this.polls.put(poll.getId(), poll);
@@ -83,6 +93,8 @@ public class PollManager {
 
     // user votes on poll
     public boolean addVote(Vote vote){
+        Instant votePublished = Instant.now();
+        vote.setPublishedAt(votePublished);
         // check if poll and user exists
         if (this.polls.containsKey(vote.getPollId()) && this.users.containsKey(vote.getUserId())) {
             Poll poll = this.polls.get(vote.getPollId());
@@ -99,13 +111,16 @@ public class PollManager {
             }
             // check that voteOption is valid
             if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
-                vote.setId(getVoteId());
-                poll.addVote(vote);
-                User user = this.users.get(vote.getUserId());
-                user.addVote(vote);
-                this.votes.put(vote.getId(), vote);
+                // check that Vote is within published and deadline in order to create a valid vote
+                if (vote.getPublishedAt().isAfter(poll.getPublishedAt()) && vote.getPublishedAt().isBefore(poll.getValidUntil())) {
+                    vote.setId(getVoteId());
+                    poll.addVote(vote);
+                    User user = this.users.get(vote.getUserId());
+                    user.addVote(vote);
+                    this.votes.put(vote.getId(), vote);
+                    return true;
+                }
             }
-            return true;
         }
         return false;
     }
