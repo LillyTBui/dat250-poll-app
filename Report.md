@@ -4,7 +4,7 @@ At the beginning I thought it was unclear about how much we should do in this ex
 
 ### Technical problems
 
-So I used ids instead of storing the full objects when it comes to saving references. It felt more natural for me to do this this way as I do not think all the information inside each object is relevant for the other objects (ex. user's password should not be visible for Poll). In addition I avoided the association cycles which was a plus.
+So I used ids instead of storing the full objects when it comes to saving references. It felt more natural for me to do this this way as I do not think all the information inside each object is relevant for the other objects (ex. user's password should not be visible for Polls). In addition I avoided the association cycles which was a plus.
 
 When I started on the assignment I wrote as simple as possible and expanded the code when I added more functionality. In the group session I got a tip to use Lombok to reduce boilerplate code which led to a quite a lot of refactoring of my old code to make it work again. 
 
