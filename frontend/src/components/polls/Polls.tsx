@@ -21,11 +21,13 @@ function Polls(){
             <h1 className={"text-2xl font-semibold mb-2"}>Public polls</h1>
             <p>Explore all public polls and vote on any you want!</p>
         </div>
-        {data?.length == 0 ? (
-            <p className={"text-center"}>No polls found... 😭</p>
-        ) : data?.map((poll: PollType) => (
-            <Poll key={poll.id} {...poll} />
-        ))}
+        <div className="mt-5 px-4 flex gap-4 flew-wrap">
+            {data?.length == 0 ? (
+                <p className={"text-center"}>No polls found... 😭</p>
+            ) : data?.map((poll: PollType) => (
+                <Poll key={poll.id} {...poll} />
+            ))}
+        </div>
     </section>
 }
 

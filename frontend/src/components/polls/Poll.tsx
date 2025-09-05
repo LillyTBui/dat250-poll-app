@@ -4,7 +4,7 @@ export default function Poll(poll: PollType) {
     function handleVote(number: number){
         console.log("voted on number: ", number);
     }
-    return <div className="bg-indigo-200 m-8 p-5 max-w-sm mx-auto rounded-lg text-center shadow-md">
+    return <div className="bg-indigo-200 p-5 max-w-sm rounded-lg text-center shadow-md">
         <h2 className={"text-lg font-bold"}>{poll.question}</h2>
         <ul className={"mt-8 flex flex-col gap-1"}>
             {poll.voteOptions.map(option => (

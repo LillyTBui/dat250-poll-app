@@ -2,8 +2,7 @@ import {type SubmitHandler, useForm} from "react-hook-form";
 import type {UserType} from "../interfaces/interfaces.ts";
 import {useMutation} from "@tanstack/react-query";
 import axios from "axios";
-import {useNavigate, generatePath} from "react-router-dom";
-
+import {useNavigate} from "react-router-dom";
 
 export default function Register() {
     const {
@@ -23,8 +22,7 @@ export default function Register() {
     const onSubmit: SubmitHandler<UserType> = (formData) => {
         mutation.mutate(formData);
         if (mutation.isSuccess) {
-            const path = generatePath("/users/:id", {id: mutation.data.data.id})
-            navigate(path);
+            navigate(`/users/${mutation.data.data.id}`);
         }
     };
 
