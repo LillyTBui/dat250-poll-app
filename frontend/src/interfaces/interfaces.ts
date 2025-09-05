@@ -21,3 +21,10 @@ export interface PollType {
     validUntil: string;
     votes: VoteType[];
 }
+
+export interface UserType {
+    id: number;
+    username: string;
+    email: string;
+    password: string;
+}

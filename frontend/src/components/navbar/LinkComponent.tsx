@@ -1,4 +1,4 @@
-import {NavLink} from "react-router";
+import {NavLink} from "react-router-dom";
 
 export default function LinkComponent({path, title} : {path:string, title:string}){
     return (
