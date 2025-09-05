@@ -12,6 +12,7 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/api/v1/polls")
+@CrossOrigin
 public class PollController {
     private final PollManager pollManager;
 
