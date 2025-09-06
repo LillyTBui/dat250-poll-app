@@ -22,7 +22,7 @@ export default function User(){
 
     console.log(data)
 
-    return <div className="mt-15 px-5">
+    return <div className="mt-15 px-3 md:px-10 max-w-7xl mx-auto">
         <h1 className={"text-xl font-semibold"}>Welcome {data?.username}!👋🏻</h1>
         <div className={"my-8"}>
             <div className="flex gap-4 align-center">
@@ -33,7 +33,7 @@ export default function User(){
             {createPoll && (
                 <CreatePoll creatorId={data.id} onClose={() => setCreatePoll(false)}/>
             )}
-            <div className="mt-5 flex gap-4 flew-wrap">
+            <div className="mt-5 flex gap-5 flex-wrap">
             {data?.polls?.map((poll: PollType) => (
                 <Poll key={poll.id} {...poll} />
             ))}
