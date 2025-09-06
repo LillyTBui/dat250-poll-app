@@ -15,15 +15,15 @@ export default function Register() {
         mutationFn: (formData: UserType) => {
             return axios.post("http://localhost:8080/api/v1/users", formData)
         },
+        onSuccess:  (response) => {
+            navigate(`/users/${response.data.id}`);
+        }
     })
 
     const navigate = useNavigate();
 
     const onSubmit: SubmitHandler<UserType> = (formData) => {
         mutation.mutate(formData);
-        if (mutation.isSuccess) {
-            navigate(`/users/${mutation.data.data.id}`);
-        }
     };
 
     return (<div className={"mt-10 p-3 flex flex-col justify-center items-center"}>

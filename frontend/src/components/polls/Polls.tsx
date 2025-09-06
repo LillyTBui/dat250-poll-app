@@ -21,7 +21,7 @@ function Polls(){
             <h1 className={"text-2xl font-semibold mb-2"}>Public polls</h1>
             <p>Explore all public polls and vote on any you want!</p>
         </div>
-        <div className="mt-5 px-4 flex gap-4 flew-wrap">
+        <div className="mt-5 px-4 max-w-7xl mx-auto flex gap-7 flex-wrap justify-center">
             {data?.length == 0 ? (
                 <p className={"text-center"}>No polls found... 😭</p>
             ) : data?.map((poll: PollType) => (

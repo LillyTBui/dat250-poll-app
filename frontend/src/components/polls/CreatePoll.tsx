@@ -47,6 +47,10 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
         mutationFn: (formData: PollType) => {
             return axios.post("http://localhost:8080/api/v1/polls", formData)
         },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['userData']);
+            onClose();
+        }
     })
 
     const onSubmit: SubmitHandler<PollType> = (formData) => {
@@ -55,10 +59,6 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
             ...formData,
         }
         mutation.mutate(createRequest);
-        if (mutation.isSuccess) {
-            onClose();
-            queryClient.invalidateQueries(['userData']);
-        }
     };
 
     return <div className={"fixed inset-0"}>
