@@ -22,6 +22,8 @@ export interface PollType {
     votes: VoteType[];
 }
 
+
+
 export interface UserType {
     id: number;
     username: string;
