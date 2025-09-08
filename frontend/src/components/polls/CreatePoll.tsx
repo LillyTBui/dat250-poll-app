@@ -76,17 +76,17 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
                         {errors.question && (<span className={"text-red-500 text-sm"}>This field is required</span>)}
                     </div>
 
-                    {fields.map((field, index) => (
-                        <div key={index} className={"bg-purple-100 flex flex-col gap-3 p-2 rounded-md"}>
+                    {fields.map((field) => (
+                        <div key={field.presentationOrder} className={"bg-purple-100 flex flex-col gap-3 p-2 rounded-md"}>
                             <div className="flex justify-between items-baseline curser-pointer">
-                                <label className={"text-md font-semibold"}>Vote option {index + 1}</label>
+                                <label className={"text-md font-semibold"}>Vote option {field.presentationOrder + 1}</label>
                                 {fields.length !== 2 && (
                                     <button type="button" className={"text-gray-500 text-sm"} onClick={() => removeVoteOption(index)}>Remove</button>
                                 )}
                             </div>
 
-                            <input key={field.id} className={"bg-white rounded-md px-2 py-1"} {...register(`voteOptions.${index}.caption`, {required: true})} />
-                            {errors.voteOptions?.[index]?.caption && (
+                            <input key={field.presentationOrder} className={"bg-white rounded-md px-2 py-1"} {...register(`voteOptions.${field.presentationOrder}.caption`, {required: true})} />
+                            {errors.voteOptions?.[field.presentationOrder]?.caption && (
                                 <span className="text-red-500 text-sm">This field is required</span>
                             )}
                         </div>

@@ -22,10 +22,10 @@ function Polls(){
             <p>Explore all public polls and vote on any you want!</p>
         </div>
         <div className="mt-5 mb-10 px-4 max-w-7xl mx-auto flex gap-7 flex-wrap justify-center">
-            {data?.length == 0 ? (
+            {data == undefined || data?.length == 0 ? (
                 <p className={"text-center"}>No polls found... 😭</p>
             ) : data?.map((poll: PollType) => (
-                <Poll key={poll.id} {...poll} />
+                <Poll key={poll.id} poll={poll} />
             ))}
         </div>
     </section>

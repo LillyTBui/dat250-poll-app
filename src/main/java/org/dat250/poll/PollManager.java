@@ -95,30 +95,42 @@ public class PollManager {
     public boolean addVote(Vote vote){
         Instant votePublished = Instant.now();
         vote.setPublishedAt(votePublished);
-        // check if poll and user exists
-        if (this.polls.containsKey(vote.getPollId()) && this.users.containsKey(vote.getUserId())) {
-            Poll poll = this.polls.get(vote.getPollId());
-            // check that user does not vote on its own poll
-            if (poll.getCreatorId() == vote.getUserId()) {
-                return false;
-            }
-            // check if user has not already voted
-            Set<Vote> votes = poll.getVotes();
-            for (Vote v : votes) {
-                if (v.getUserId() == vote.getUserId()){
-                    return false;
+        // check if poll
+        if (this.polls.containsKey(vote.getPollId())) {
+            // check if user exists
+            if (this.users.containsKey(vote.getUserId())){
+                Poll poll = this.polls.get(vote.getPollId());
+                // check if user has not already voted
+                Set<Vote> votes = poll.getVotes();
+                for (Vote v : votes) {
+                    if (v.getUserId() == vote.getUserId()){
+                        return false;
+                    }
                 }
-            }
-            // check that voteOption is valid
-            if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
-                // check that Vote is within published and deadline in order to create a valid vote
-                if (vote.getPublishedAt().isAfter(poll.getPublishedAt()) && vote.getPublishedAt().isBefore(poll.getValidUntil())) {
-                    vote.setId(getVoteId());
-                    poll.addVote(vote);
-                    User user = this.users.get(vote.getUserId());
-                    user.addVote(vote);
-                    this.votes.put(vote.getId(), vote);
-                    return true;
+                // check that voteOption is valid
+                if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
+                    // check that Vote is within published and deadline in order to create a valid vote
+                    if (vote.getPublishedAt().isAfter(poll.getPublishedAt()) && vote.getPublishedAt().isBefore(poll.getValidUntil())) {
+                        vote.setId(getVoteId());
+                        poll.addVote(vote);
+                        User user = this.users.get(vote.getUserId());
+                        user.addVote(vote);
+                        this.votes.put(vote.getId(), vote);
+                        return true;
+                    }
+                }
+            } else {
+                // if user do not exists then there is an anonymous vote
+                Poll poll = this.polls.get(vote.getPollId());
+                // check that voteOption is valid
+                if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
+                    // check that Vote is within published and deadline in order to create a valid vote
+                    if (vote.getPublishedAt().isAfter(poll.getPublishedAt()) && vote.getPublishedAt().isBefore(poll.getValidUntil())) {
+                        vote.setId(getVoteId());
+                        poll.addVote(vote);
+                        this.votes.put(vote.getId(), vote);
+                        return true;
+                    }
                 }
             }
         }
