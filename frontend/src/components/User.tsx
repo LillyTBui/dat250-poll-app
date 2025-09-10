@@ -21,24 +21,28 @@ export default function User(){
     })
 
     console.log(data)
-    console.log(id);
 
     return <div className="mt-15 px-3 md:px-10 max-w-7xl mx-auto">
-        <h1 className={"text-xl font-semibold"}>Welcome {data?.username}!👋🏻</h1>
-        <div className={"my-8"}>
-            <div className="flex gap-4 align-center">
-                <h2 className={"text-lg font-semibold"}>My polls</h2>
-                <button className={"bg-pink-200 py-1 px-2 rounded-md hover:bg-pink-100 focus-visible:outline-2"}
-                        onClick={() => setCreatePoll(true)}>Create new poll</button>
-            </div>
-            {createPoll && (
-                <CreatePoll creatorId={data.id} onClose={() => setCreatePoll(false)}/>
-            )}
-            <div className="mt-5 flex gap-5 flex-wrap">
-            {data?.polls?.map((poll: PollType) => (
-                <Poll key={poll.id} poll={poll} userId={id}/>
-            ))}
-            </div>    
-        </div>
+        {data != undefined  ? (<>
+                <h1 className={"text-xl font-semibold"}>Welcome {data?.username}!👋🏻</h1>
+                <div className={"my-8"}>
+                    <div className="flex gap-4 align-center">
+                        <h2 className={"text-lg font-semibold"}>My polls</h2>
+                        <button className={"bg-pink-200 py-1 px-2 rounded-md hover:bg-pink-100 focus-visible:outline-2"}
+                                onClick={() => setCreatePoll(true)}>Create new poll</button>
+                    </div>
+                    {createPoll && (
+                        <CreatePoll creatorId={data.id} onClose={() => setCreatePoll(false)}/>
+                    )}
+                    <div className="mt-5 flex gap-5 flex-wrap">
+                        {data?.polls?.map((poll: PollType) => (
+                            <Poll key={poll.id} poll={poll} userId={id}/>
+                        ))}
+                    </div>
+                </div>
+            </>
+        ):
+        <p>Could not get user ☠️</p>
+        }
     </div>
 }

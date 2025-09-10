@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -13,7 +12,7 @@ public class Poll {
     private int id;
     private String question;
     private final Set<Vote> votes = new HashSet<>();
-    private Set<VoteOption> voteOptions = new HashSet<>();
+    private List<VoteOption> voteOptions = new ArrayList<>();
     private int creatorId;
     private boolean visibility;
     private Instant publishedAt;

@@ -1,5 +1,5 @@
 import {type SubmitHandler, useForm, useFieldArray} from "react-hook-form";
-import type {PollType} from "../../interfaces/interfaces.ts";
+import type {PollType, VoteOptionType} from "../../interfaces/interfaces.ts";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import axios from "axios";
 
@@ -54,9 +54,20 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
     })
 
     const onSubmit: SubmitHandler<PollType> = (formData) => {
+        // correct the presentationOrder based on the index to avoid duplicated values
+        let correctVoteOptions: VoteOptionType[] = []
+        formData.voteOptions.forEach((voteOption, index) => {
+            let option = {
+                caption: voteOption.caption,
+                presentationOrder: index
+            }
+            correctVoteOptions.push(option)
+        })
+        formData.voteOptions = correctVoteOptions;
+
         const createRequest : PollType = {
             creatorId: creatorId,
-            ...formData,
+            ...formData
         }
         mutation.mutate(createRequest);
     };
@@ -64,7 +75,7 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
     return <div className={"fixed inset-0"}>
         <div className="absolute inset-0 bg-black opacity-50">
         </div>
-        <div className={"p-10 bg-gray-300 max-w-sm mx-auto relative top-1/4"}>
+        <div className={"p-10 bg-gray-300 max-w-sm mx-auto relative top-1/8 max-h-[80vh] overflow-auto"}>
             <button className={"absolute right-4 top-2"} onClick={onClose}>X</button>
             <div className="flex flex-col justify-center items-center relative">
                 <h1 className={"text-xl font-semibold"}>Create poll</h1>
@@ -76,17 +87,17 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
                         {errors.question && (<span className={"text-red-500 text-sm"}>This field is required</span>)}
                     </div>
 
-                    {fields.map((field) => (
-                        <div key={field.presentationOrder} className={"bg-purple-100 flex flex-col gap-3 p-2 rounded-md"}>
+                    {fields.map((_, index) => (
+                        <div key={index} className={"bg-purple-100 flex flex-col gap-3 p-2 rounded-md"}>
                             <div className="flex justify-between items-baseline curser-pointer">
-                                <label className={"text-md font-semibold"}>Vote option {field.presentationOrder + 1}</label>
+                                <label className={"text-md font-semibold"}>Vote option {index + 1}</label>
                                 {fields.length !== 2 && (
                                     <button type="button" className={"text-gray-500 text-sm"} onClick={() => removeVoteOption(index)}>Remove</button>
                                 )}
                             </div>
 
-                            <input key={field.presentationOrder} className={"bg-white rounded-md px-2 py-1"} {...register(`voteOptions.${field.presentationOrder}.caption`, {required: true})} />
-                            {errors.voteOptions?.[field.presentationOrder]?.caption && (
+                            <input key={index} className={"bg-white rounded-md px-2 py-1"} {...register(`voteOptions.${index}.caption`, {required: true})} />
+                            {errors.voteOptions?.[index]?.caption && (
                                 <span className="text-red-500 text-sm">This field is required</span>
                             )}
                         </div>
