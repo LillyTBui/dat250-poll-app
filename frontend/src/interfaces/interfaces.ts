@@ -4,7 +4,7 @@ export interface VoteOptionType {
 }
 
 export interface VoteType {
-    id: number;
+    id: number | undefined;
     pollId: number;
     userId: number;
     voteOption: VoteOptionType;

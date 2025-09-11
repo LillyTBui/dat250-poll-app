@@ -20,6 +20,7 @@ export default function User(){
         }
     })
 
+    console.log("this is inside user")
     console.log(data)
 
     return <div className="mt-15 px-3 md:px-10 max-w-7xl mx-auto">

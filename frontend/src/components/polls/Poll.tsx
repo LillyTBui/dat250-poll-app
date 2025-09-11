@@ -14,9 +14,20 @@ export default function Poll({poll, userId}: PollProps) {
 
     const queryClient = useQueryClient();
 
-    const mutation = useMutation({
+    // mutation for when the user has not voted before
+    const createMutation = useMutation({
         mutationFn: (voteRequest: VoteType) => {
             return axios.post(`http://localhost:8080/api/v1/polls/${poll.id}/votes`, voteRequest)
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries(['userData']);
+        }
+    })
+
+    // mutation for when the user updates a vote
+    const updateMutation = useMutation({
+        mutationFn: (voteRequest: VoteType) => {
+            return axios.put(`http://localhost:8080/api/v1/polls/${voteRequest.pollId}/votes/${voteRequest.id}`, voteRequest)
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['userData']);
@@ -31,7 +42,19 @@ export default function Poll({poll, userId}: PollProps) {
                 presentationOrder: number
             }
         }
-        mutation.mutate(voteRequest);
+        console.log(getVote());
+        const oldVote = getVote();
+        if (oldVote != undefined){
+            const updatedVote = {
+                ...oldVote,
+                voteOption: voteRequest.voteOption
+            }
+            console.log("oldvote", oldVote);
+            console.log("updatedVote", updatedVote);
+            updateMutation.mutate(updatedVote);
+        } else {
+            createMutation.mutate(voteRequest);
+        }
     }
 
     function calculateResults(){
@@ -47,6 +70,11 @@ export default function Poll({poll, userId}: PollProps) {
             map.set(caption, currentResult + 1);
         })
         setResults(map);
+    }
+
+    function getVote(): VoteType | undefined {
+        // get vote if user has already voted
+        return poll.votes.find(vote => vote.userId == userId);
     }
 
     // everytime someone has voted we want to update the results

@@ -18,8 +18,8 @@ public class Poll {
     private Instant publishedAt;
     private Instant validUntil;
 
-    public void removeVote(Vote vote) {
-        this.votes.remove(vote);
+    public void removeVote(int voteId) {
+        this.votes.removeIf(vote -> vote.getId() == voteId );
     }
 
     public void addVote(Vote vote) {

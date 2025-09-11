@@ -159,7 +159,7 @@ public class PollManager {
             VoteOption voteOption = vote.getVoteOption();
             if (poll.getVoteOptions().contains(voteOption) ) {
                 // remove old vote from poll
-                poll.removeVote(vote);
+                poll.removeVote(voteId);
                 // remove old vote from user
                 user.removeVote(vote.getId());
                 // remove old vote from memory
