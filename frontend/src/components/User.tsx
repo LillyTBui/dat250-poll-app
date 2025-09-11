@@ -30,7 +30,7 @@ export default function User(){
                                 onClick={() => setCreatePoll(true)}>Create new poll</button>
                     </div>
                     {createPoll && (
-                        <CreatePoll creatorId={data.id} onClose={() => setCreatePoll(false)}/>
+                        <CreatePoll creatorID={data.id} onClose={() => setCreatePoll(false)}/>
                     )}
                     <div className="mt-5 flex gap-5 flex-wrap">
                         {data?.polls?.map((poll: PollType) => (

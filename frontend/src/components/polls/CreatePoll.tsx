@@ -3,7 +3,7 @@ import type {PollType, VoteOptionType} from "../../interfaces/interfaces.ts";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import axios from "axios";
 
-export default function CreatePoll({creatorId, onClose} : {creatorId: number, onClose: () => void}) {
+export default function CreatePoll({creatorID, onClose} : {creatorID: number, onClose: () => void}) {
     const {
         control,
         register,
@@ -48,7 +48,8 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
             return axios.post("http://localhost:8080/api/v1/polls", formData)
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['userData']);
+            queryClient.invalidateQueries({
+                queryKey: ['userData']});
             onClose();
         }
     })
@@ -66,8 +67,8 @@ export default function CreatePoll({creatorId, onClose} : {creatorId: number, on
         formData.voteOptions = correctVoteOptions;
 
         const createRequest : PollType = {
-            creatorId: creatorId,
-            ...formData
+            ...formData,
+            creatorId: creatorID,
         }
         mutation.mutate(createRequest);
     };
