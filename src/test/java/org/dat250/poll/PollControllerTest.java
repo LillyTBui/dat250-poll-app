@@ -44,7 +44,7 @@ public class PollControllerTest {
         User user = new User(1, "user", "userpassword", "user@hotmail.com");
         userRestClient.post().uri("").body(user).retrieve().toEntity(User.class);
 
-        Set<VoteOption> voteOptions = createVoteOption();
+        List<VoteOption> voteOptions = createVoteOption();
         ResponseEntity<Poll> result = createPoll(1, voteOptions, null);
 
         System.out.println(result.getBody());
@@ -151,15 +151,15 @@ public class PollControllerTest {
         assertThat(userVotes.getBody().size()).isEqualTo(0);
     }
 
-    private ResponseEntity<Poll> createPoll(int creatorId, Set<VoteOption> voteOptions, Instant publishedAt) {
+    private ResponseEntity<Poll> createPoll(int creatorId, List<VoteOption> voteOptions, Instant publishedAt) {
         // create a new poll
         Poll poll = new Poll(0, "What is your favorite color?", voteOptions, creatorId, false, publishedAt, null);
         return restClient.post().uri("").body(poll).retrieve().toEntity(Poll.class);
     }
 
-    private Set<VoteOption> createVoteOption(){
+    private List<VoteOption> createVoteOption(){
         // create vote options for the poll
-        Set<VoteOption> voteOptions = new HashSet<>();
+        List<VoteOption> voteOptions = new ArrayList<>();
         VoteOption voteOption = new VoteOption("Red", 0);
         VoteOption voteOption2 = new VoteOption("Green", 1);
         voteOptions.add(voteOption);
