@@ -1,7 +1,7 @@
 import type {PollType, VoteType} from "../../interfaces/interfaces.ts";
 import {useMutation, useQueryClient} from "@tanstack/react-query";
 import axios from "axios";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 interface PollProps {
     poll: PollType;
@@ -9,7 +9,7 @@ interface PollProps {
 }
 
 export default function Poll({poll, userId}: PollProps) {
-    const [hasVoted, setHasVoted] = useState(false);
+    const [showResults, setShowResults] = useState(false);
     const [results, setResults] = useState(new Map());
 
     const queryClient = useQueryClient();
@@ -20,25 +20,25 @@ export default function Poll({poll, userId}: PollProps) {
         },
         onSuccess: () => {
             queryClient.invalidateQueries(['userData']);
-            setHasVoted(true);
         }
     })
-    function handleVote(question: string, number: number){
+
+    function handleVote(caption: string, number: number){
         const voteRequest = {
             userId: userId,
             voteOption: {
-                caption: question,
+                caption: caption,
                 presentationOrder: number
             }
         }
-        console.log(voteRequest);
         mutation.mutate(voteRequest);
     }
 
     function calculateResults(){
         const map = new Map();
+        // create a map entry for each vote option
         poll.voteOptions.forEach(voteOption => {
-            map.set(voteOption.caption, 1);
+            map.set(voteOption.caption, 0);
         })
         // check each vote and update map
         poll.votes.forEach((vote) => {
@@ -49,24 +49,32 @@ export default function Poll({poll, userId}: PollProps) {
         setResults(map);
     }
 
-    if (hasVoted) {
+    // everytime someone has voted we want to update the results
+    useEffect(() => {
         calculateResults();
-        console.log(results);
-    }
-
-    console.log("THIS IS INSIDE POLL")
-    console.log(poll);
+    }, [poll.votes])
 
     return <div className="bg-indigo-200 p-5 max-w-sm w-full rounded-lg text-center shadow-md">
         <h2 className={"text-lg font-bold"}>{poll.question}</h2>
         <ul className={"mt-8 flex flex-col gap-1"}>
             {poll.voteOptions.map(option => (
-                <li key={option.presentationOrder} className={`hover:bg-gray-100 ${hasVoted ? "bg-pink-100" : "bg-white"}`} onClick={() => handleVote(option.caption, option.presentationOrder)}>{option.caption}</li>
+                <li key={option.presentationOrder} className={`hover:bg-gray-100 bg-white rounded-sm`} onClick={() => handleVote(option.caption, option.presentationOrder)}>{option.caption}</li>
             ))}
         </ul>
-        {hasVoted && (
-            <div className={"mt-4 text-left"}>
-                <h3 className={"font-semibold"}>Voting results</h3>
+        {!showResults ?
+            <button className={"my-4 py-2 px-3 bg-black text-white rounded-md"} onClick={() => setShowResults(true)}>Show results</button> :
+            <button className={"my-4 py-2 px-3 bg-gray-400 text-white rounded-md"} onClick={() => setShowResults(false)}>Hide results</button>
+        }
+        {showResults && (
+            <div className={"text-left"}>
+                <h3 className={"font-semibold uppercase"}>Voting results</h3>
+                <ul className={"mt-2 flex flex-col gap-1"}>
+                    {[...results.entries()].map(([key, value]) => (
+                        <li key={key}>
+                            {key}: {value} votes
+                        </li>
+                    ))}
+                </ul>
             </div>
         )}
     </div>
