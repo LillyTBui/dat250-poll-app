@@ -28,6 +28,10 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.34")
 }
 
+springBoot {
+    mainClass.set("org.dat250.poll.PollApplication")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
