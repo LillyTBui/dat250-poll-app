@@ -20,9 +20,6 @@ export default function User(){
         }
     })
 
-    console.log("this is inside user")
-    console.log(data)
-
     return <div className="mt-15 px-3 md:px-10 max-w-7xl mx-auto">
         {data != undefined  ? (<>
                 <h1 className={"text-xl font-semibold"}>Welcome {data?.username}!👋🏻</h1>
@@ -37,7 +34,7 @@ export default function User(){
                     )}
                     <div className="mt-5 flex gap-5 flex-wrap">
                         {data?.polls?.map((poll: PollType) => (
-                            <Poll key={poll.id} poll={poll} userId={id}/>
+                            <Poll key={poll.id} poll={poll} userId={Number(id)}/>
                         ))}
                     </div>
                 </div>

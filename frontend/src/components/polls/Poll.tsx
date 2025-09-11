@@ -20,7 +20,9 @@ export default function Poll({poll, userId}: PollProps) {
             return axios.post(`http://localhost:8080/api/v1/polls/${poll.id}/votes`, voteRequest)
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['userData']);
+            queryClient.invalidateQueries({
+                queryKey: ['userData']
+            });
         }
     })
 
@@ -30,27 +32,26 @@ export default function Poll({poll, userId}: PollProps) {
             return axios.put(`http://localhost:8080/api/v1/polls/${voteRequest.pollId}/votes/${voteRequest.id}`, voteRequest)
         },
         onSuccess: () => {
-            queryClient.invalidateQueries(['userData']);
+            queryClient.invalidateQueries({
+                queryKey: ['userData']
+            });
         }
     })
 
     function handleVote(caption: string, number: number){
-        const voteRequest = {
+        const voteRequest: VoteType = {
             userId: userId,
             voteOption: {
                 caption: caption,
                 presentationOrder: number
             }
         }
-        console.log(getVote());
         const oldVote = getVote();
         if (oldVote != undefined){
             const updatedVote = {
                 ...oldVote,
                 voteOption: voteRequest.voteOption
             }
-            console.log("oldvote", oldVote);
-            console.log("updatedVote", updatedVote);
             updateMutation.mutate(updatedVote);
         } else {
             createMutation.mutate(voteRequest);

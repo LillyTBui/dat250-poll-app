@@ -4,11 +4,11 @@ export interface VoteOptionType {
 }
 
 export interface VoteType {
-    id: number | undefined;
-    pollId: number;
-    userId: number;
+    id?: number | undefined;
+    pollId?: number;
+    userId?: number;
     voteOption: VoteOptionType;
-    publishedAt: string;
+    publishedAt?: string;
 }
 
 export interface PollType {
