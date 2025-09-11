@@ -23,6 +23,9 @@ export default function Poll({poll, userId}: PollProps) {
             queryClient.invalidateQueries({
                 queryKey: ['userData']
             });
+            queryClient.invalidateQueries({
+                queryKey: ['polls'],
+            })
         }
     })
 
@@ -35,6 +38,9 @@ export default function Poll({poll, userId}: PollProps) {
             queryClient.invalidateQueries({
                 queryKey: ['userData']
             });
+            queryClient.invalidateQueries({
+                queryKey: ['polls'],
+            })
         }
     })
 
