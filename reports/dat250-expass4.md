@@ -14,9 +14,7 @@ In one of the tests the queries use `createNativeQuery` so I had to
 explicitly name the user table `users` to avoid errors. Additionally, 
 I had to set the cascade option for options in `Poll` because they were
 dependent on the parent. Another issue encountered was that I 
-originally used Lombok's `@Data` annotation which gave me a toString()
-method for all fields, but this resulted in an infinite loop if there
-were bidirectional associations.
+originally used Lombok's `@Data` annotation which gave me hashCode() problems.
 
 For debugging purposes I found it useful to log the sql queries by
 adding properties to `PersistenceConfiguration`. For example, in the image below 
