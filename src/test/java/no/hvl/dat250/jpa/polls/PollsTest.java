@@ -3,6 +3,7 @@ package no.hvl.dat250.jpa.polls;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceConfiguration;
+import org.hibernate.cfg.JdbcSettings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +56,12 @@ public class PollsTest {
                 .property(PersistenceConfiguration.SCHEMAGEN_DATABASE_ACTION, "drop-and-create")
                 .property(PersistenceConfiguration.JDBC_USER, "sa")
                 .property(PersistenceConfiguration.JDBC_PASSWORD, "")
+
+                // SQL statement logging
+                .property(JdbcSettings.SHOW_SQL, true)
+                .property(JdbcSettings.FORMAT_SQL, true)
+                .property(JdbcSettings.HIGHLIGHT_SQL, true)
+
                 .createEntityManagerFactory();
         emf.runInTransaction(em -> {
             populate(em);
