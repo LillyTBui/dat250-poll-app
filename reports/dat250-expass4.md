@@ -23,14 +23,14 @@ adding properties to `PersistenceConfiguration`. For example, in the image below
 we can see that Hibernate creates another table for handling 
 the mapping associations between `Poll` and `VoteOption`. 
 
-<img src="expass4-img.png" width="200">
+<img src="expass4-img.png" width="300">
 
 In addition, it was easier to see the full queries which includes 
 which tables and conditions it used than looking at the
 queries in one single line. This is for example shown 
 in the second image.
 
-<img src="expass4-img2.png" width="200">
+<img src="expass4-img2.png" width="300">
 
 I also made my own createQueries in the test to see the actual values
 in the tables. This was to help me see what I was missing in the 
