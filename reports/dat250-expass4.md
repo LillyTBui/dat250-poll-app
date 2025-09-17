@@ -41,7 +41,8 @@ For the final delivery I removed these print statements and queries.
 
 ### Links
 
-- `User` - 
-- `Poll` -
-- `Vote` -
-- `VoteOption` - 
+- `User` - https://github.com/LillyTBui/dat250-poll-app/blob/jpa/src/main/java/no/hvl/dat250/jpa/polls/User.java
+- `Poll` - https://github.com/LillyTBui/dat250-poll-app/blob/jpa/src/main/java/no/hvl/dat250/jpa/polls/Poll.java
+- `Vote` - https://github.com/LillyTBui/dat250-poll-app/blob/jpa/src/main/java/no/hvl/dat250/jpa/polls/Vote.java
+- `VoteOption` - https://github.com/LillyTBui/dat250-poll-app/blob/jpa/src/main/java/no/hvl/dat250/jpa/polls/VoteOption.java
+- Link to branch where I worked on this assignment https://github.com/LillyTBui/dat250-poll-app/tree/jpa
