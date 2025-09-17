@@ -3,7 +3,7 @@
 When I started on the assignment, the description of the task was missing a
 dependency so I used some time to figure out what was wrong with the 
 `PersistenceConfiguration`. I started looking at `persistence.xml` 
-because that was what the teacher showed in the lectures, but found
+because that was what the teacher showed in the lectures, but I found
 the missing dependency in the end. I decided to start from scratch
 when making the entities by looking at the sql queries and analyze 
 which fields I needed to make the test pass. I think this was
@@ -12,8 +12,8 @@ Thus the entities are located inside `no.hvl.dat250.jpa.polls`.
 
 In one of the tests the queries use `createNativeQuery` so I had to 
 explicitly name the user table `users` to avoid errors. Additionally, 
-I had to set the cascade option for some fields because they were
-independent on the parent. Another issue encountered was that I 
+I had to set the cascade option for options in `Poll` because they were
+dependent on the parent. Another issue encountered was that I 
 originally used Lombok's `@Data` annotation which gave me a toString()
 method for all fields, but this resulted in an infinite loop if there
 were bidirectional associations.
