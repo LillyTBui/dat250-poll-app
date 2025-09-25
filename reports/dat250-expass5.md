@@ -27,7 +27,7 @@ I then created a new PollObject with the given values from the task. The problem
 was that I tried to set this object directly without first converting it into a json string. For
 this I used Jackson.
 
-Link to the test code: ...
+Link to the test code: https://github.com/LillyTBui/dat250-poll-app/blob/jpa/src/main/java/no/hvl/dat250/jpa/polls/Main.java
 
 ### Implementing a Cache task
 
@@ -46,4 +46,4 @@ Link to the test code: ...
   - user votes on the poll, then the third time would again retrieve data from the database and the count increased
     for that voteOption
 
-Link to cache code: ...
+Link to cache code: https://github.com/LillyTBui/dat250-poll-app/blob/jpa/src/main/java/no/hvl/dat250/jpa/polls/Cache.java
