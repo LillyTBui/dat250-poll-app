@@ -19,6 +19,8 @@ repositories {
 }
 
 dependencies {
+    implementation("redis.clients:jedis:6.2.0")
+
     implementation("org.hibernate.orm:hibernate-core:7.1.1.Final")
     implementation("com.h2database:h2:2.3.232")
     implementation("jakarta.persistence:jakarta.persistence-api:3.2.0")
