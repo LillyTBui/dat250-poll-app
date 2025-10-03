@@ -27,7 +27,7 @@ public class PollController {
     }
 
     @PostMapping
-    public ResponseEntity<Poll> createPoll(@RequestBody Poll poll) {
+    public ResponseEntity<Poll> createPoll(@RequestBody Poll poll) throws Exception {
         if (this.pollManager.add(poll)) {
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
@@ -48,7 +48,7 @@ public class PollController {
     }
 
     @PostMapping("/{pollId}/votes")
-    public ResponseEntity<Vote> votePoll(@PathVariable int pollId, @RequestBody Vote vote) {
+    public ResponseEntity<Vote> votePoll(@PathVariable int pollId, @RequestBody Vote vote) throws Exception {
         vote.setPollId(pollId);
         if (this.pollManager.addVote(vote)) {
             URI location = ServletUriComponentsBuilder

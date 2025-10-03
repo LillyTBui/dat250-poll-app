@@ -5,6 +5,8 @@ import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
 import org.dat250.poll.domains.VoteOption;
+import org.dat250.poll.messaging.Consumer;
+import org.dat250.poll.messaging.Producer;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -22,6 +24,9 @@ public class PollManager {
     private final AtomicInteger nextId = new AtomicInteger(0);
     private final AtomicInteger pollId = new AtomicInteger(0);
     private final AtomicInteger voteId = new AtomicInteger(0);
+
+    private Producer producer = new Producer();
+    private Consumer consumer = new Consumer();
 
     public Integer getNextId() {
         return nextId.incrementAndGet();
@@ -56,7 +61,7 @@ public class PollManager {
     }
 
     // user creates a new poll
-    public boolean add(Poll poll){
+    public boolean add(Poll poll) throws Exception {
         // check if user exists
         if (!this.users.containsKey(poll.getCreatorId())) {
             return false;
@@ -88,11 +93,16 @@ public class PollManager {
         User user = this.users.get(userID);
         user.addPoll(poll);
 
+        // register a topic with the same name
+        this.producer.registerTopic("Poll:" + poll.getId());
+        // subscribe to the topic
+        this.consumer.subscribeToTopic("Poll:" + poll.getId());
+
         return true;
     }
 
     // user votes on poll
-    public boolean addVote(Vote vote){
+    public boolean addVote(Vote vote) throws Exception {
         Instant votePublished = Instant.now();
         vote.setPublishedAt(votePublished);
         // check if poll
@@ -116,6 +126,11 @@ public class PollManager {
                         User user = this.users.get(vote.getUserId());
                         user.addVote(vote);
                         this.votes.put(vote.getId(), vote);
+
+                        // Publish message
+                        String message = user.getUsername() + " voted on poll with id = " + poll.getId();
+                                this.producer.publishMessage("Poll:" + poll.getId(), message, "vote.created");
+
                         return true;
                     }
                 }
@@ -129,6 +144,11 @@ public class PollManager {
                         vote.setId(getVoteId());
                         poll.addVote(vote);
                         this.votes.put(vote.getId(), vote);
+
+                        // Publish message
+                        String message = "anonymous voted on poll with id = " + poll.getId();
+                        this.producer.publishMessage("Poll:" + poll.getId(), message, "vote.created");
+
                         return true;
                     }
                 }
