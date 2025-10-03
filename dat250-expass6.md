@@ -39,13 +39,13 @@ Subscribing to topic Poll:1
 [x] Received 'vote.created':'anonymous voted on poll with id = 1'
 ```
 
-- Link to Consumer: 
-- Link to Producer: 
-- Link to UserController: 
-- Link to PollController: 
-- Link to PollManager:
-- Link to Repository:
-- Link to JpaConfig:
+- Link to Consumer: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/messaging/Consumer.java
+- Link to Producer: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/messaging/Producer.java
+- Link to UserController: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/UserController.java
+- Link to PollController: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/PollController.java
+- Link to PollManager: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/PollManager.java
+- Link to Repository: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/Repository.java
+- Link to JpaConfig: https://github.com/LillyTBui/dat250-poll-app/blob/messaging/backend/src/main/java/org/dat250/poll/JpaConfig.java
 
 ### Pending issues
 When doing this assignment I did not make the solution work with the testcases and the frontend.
