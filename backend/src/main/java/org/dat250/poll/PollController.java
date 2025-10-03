@@ -2,70 +2,61 @@ package org.dat250.poll;
 
 import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.Vote;
+import org.dat250.poll.dto.PollDto;
+import org.dat250.poll.dto.VoteDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/polls")
 @CrossOrigin
 public class PollController {
+    private final Repository repository;
     private final PollManager pollManager;
 
-    public PollController(@Autowired PollManager pollManager) {
+    public PollController(@Autowired Repository repository, @Autowired PollManager pollManager) {
+        this.repository = repository;
         this.pollManager = pollManager;
     }
 
-    @GetMapping
-    public ResponseEntity<Collection<Poll>> getPolls(){
-        Collection<Poll> polls = this.pollManager.getPolls().values();
-        return ResponseEntity.ok(polls);
-    }
-
     @PostMapping
-    public ResponseEntity<Poll> createPoll(@RequestBody Poll poll) throws Exception {
-        if (this.pollManager.add(poll)) {
+    public ResponseEntity<Poll> createPoll(@RequestBody PollDto pollDto) throws Exception {
+        try {
+            Poll poll = this.pollManager.createPoll(pollDto);
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{id}")
                     .buildAndExpand(poll.getId())
                     .toUri();
             return ResponseEntity.created(location).body(poll); // successful POST
+        } catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().build(); // invalid request
         }
-        return ResponseEntity.badRequest().build(); // invalid request
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePoll(@PathVariable int id) {
-        if (this.pollManager.deletePoll(id)) {
-            return ResponseEntity.noContent().build(); // successful DELETE
-        }
-        return ResponseEntity.badRequest().build(); // invalid request
     }
 
     @PostMapping("/{pollId}/votes")
-    public ResponseEntity<Vote> votePoll(@PathVariable int pollId, @RequestBody Vote vote) throws Exception {
-        vote.setPollId(pollId);
-        if (this.pollManager.addVote(vote)) {
+    public ResponseEntity<Vote> votePoll(@PathVariable Long pollId, @RequestBody VoteDto voteDto) throws Exception {
+        voteDto.setPollId(pollId);
+        Vote vote = this.pollManager.addVote(voteDto);
+        if (vote != null) {
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("/{voteId}")
                     .buildAndExpand(vote.getId())
                     .toUri();
-            return ResponseEntity.created(location).body(vote); // successful POST
+            return ResponseEntity.created(location).body(vote); // successful POST*/
         }
         return ResponseEntity.badRequest().build(); // invalid request
     }
 
-    @PutMapping("/{pollId}/votes/{voteId}")
-    public ResponseEntity<Vote> updateVote(@PathVariable int pollId, @PathVariable int voteId, @RequestBody Vote vote) {
-         if (this.pollManager.updateVote(pollId, voteId, vote))  {
-             return ResponseEntity.ok(vote);
-         }
-         return ResponseEntity.notFound().build();
+    @GetMapping
+    public ResponseEntity<List<Poll>> getPolls(){
+        List<Poll> polls = this.repository.findAllPolls();
+        return ResponseEntity.ok(polls);
     }
 }

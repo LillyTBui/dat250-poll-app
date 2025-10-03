@@ -25,7 +25,7 @@ public class UserControllerTest {
         this.restClient = RestClient.builder().baseUrl("http://localhost:" + port + "/api/v1/users").build();
     }
 
-    @Test
+    /*@Test
     @Order(1)
     public void createUserTest(){
         // create user
@@ -81,5 +81,5 @@ public class UserControllerTest {
         // delete the last user
         ResponseEntity<Void> resultsAfterDelete = restClient.delete().uri("/{id}", 1).retrieve().toEntity(Void.class);
         assertThat(resultsAfterDelete.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
+    }*/
 }

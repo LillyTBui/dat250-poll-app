@@ -1,16 +1,25 @@
 package org.dat250.poll.domains;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.Instant;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString
+@Entity
 public class Vote {
-    private int id;
-    private int pollId;
-    private int userId;
-    private VoteOption voteOption;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private Instant publishedAt;
+    @ManyToOne
+    private VoteOption votesOn;
+
+    public Vote(VoteOption votesOn, Instant publishedAt) {
+        this.votesOn = votesOn;
+        this.publishedAt = publishedAt;
+    }
 }

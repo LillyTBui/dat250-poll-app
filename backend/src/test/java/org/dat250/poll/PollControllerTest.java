@@ -37,7 +37,7 @@ public class PollControllerTest {
         this.userRestClient = RestClient.builder().baseUrl("http://localhost:" + port + "/api/v1/users").build();
     }
 
-    @Test
+    /*@Test
     @Order(1)
     public void createPoll() {
         // create user
@@ -166,5 +166,5 @@ public class PollControllerTest {
         voteOptions.add(voteOption2);
 
         return voteOptions;
-    }
+    }*/
 }

@@ -5,75 +5,57 @@ import org.dat250.poll.domains.Poll;
 import org.dat250.poll.domains.User;
 import org.dat250.poll.domains.Vote;
 import org.dat250.poll.domains.VoteOption;
+import org.dat250.poll.dto.PollDto;
+import org.dat250.poll.dto.VoteDto;
+import org.dat250.poll.dto.VoteOptionDto;
 import org.dat250.poll.messaging.Consumer;
 import org.dat250.poll.messaging.Producer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @Data
 public class PollManager {
-    private final Map<Integer, User> users = new HashMap<>();
-    private final Map<Integer, Poll> polls = new HashMap<>();
-    private final Map<Integer, Vote> votes = new HashMap<>();
+    private Producer producer;
+    private Consumer consumer;
+    private Repository repository;
 
-    private final AtomicInteger nextId = new AtomicInteger(0);
-    private final AtomicInteger pollId = new AtomicInteger(0);
-    private final AtomicInteger voteId = new AtomicInteger(0);
-
-    private Producer producer = new Producer();
-    private Consumer consumer = new Consumer();
-
-    public Integer getNextId() {
-        return nextId.incrementAndGet();
-    }
-
-    public Integer getPollId() {
-        return pollId.incrementAndGet();
-    }
-
-    public Integer getVoteId() {
-        return voteId.incrementAndGet();
+    public PollManager(@Autowired Repository repository) {
+        this.repository = repository;
+        this.producer = new Producer();
+        this.consumer = new Consumer();
     }
 
     // add a new user
     public boolean add(User user){
         // check if user has the mandatory fields
         if (!user.getUsername().isEmpty() && !user.getEmail().isEmpty()) {
-            user.setId(getNextId());
-            this.users.put(user.getId(), user);
-            return true;
-        }
-        return false;
-    }
-
-    // remove a user
-    public boolean removeUser(int userId){
-        if (this.users.containsKey(userId)) {
-            this.users.remove(userId);
+            this.repository.save(user);
             return true;
         }
         return false;
     }
 
     // user creates a new poll
-    public boolean add(Poll poll) throws Exception {
+    public Poll createPoll(PollDto poll) throws Exception {
         // check if user exists
-        if (!this.users.containsKey(poll.getCreatorId())) {
-            return false;
+        Long userId = poll.getCreatorId();
+        User user = this.repository.findUserById(userId);
+        if (user == null) {
+            throw new Exception("User not found");
         }
 
         // a poll must have a question
         if (poll.getQuestion() == null || poll.getQuestion().isEmpty()){
-            return false;
+            throw new Exception("Question is empty");
         }
         // a poll must have at least 2 voting options
         if (poll.getVoteOptions() == null || poll.getVoteOptions().size() < 2){
-            return false;
+            throw new Exception("Vote options cannot be empty");
         }
 
         // if publishedAt and validUntil are not set by user, then set default values
@@ -83,136 +65,59 @@ public class PollManager {
         if (poll.getValidUntil() == null){
             poll.setValidUntil(poll.getPublishedAt().plus(Duration.ofDays(7)));
         }
-
-        // add newly created poll to manager
-        poll.setId(getPollId());
-        this.polls.put(poll.getId(), poll);
+        // create new poll
+        Poll newPoll = new Poll(poll.getQuestion(), user, poll.getPublishedAt(), poll.getValidUntil(), poll.isVisibility());
+        // add voteOptions to the new poll
+        for (VoteOptionDto optionDto : poll.getVoteOptions()){
+            newPoll.addVoteOption(optionDto.getCaption());
+        }
 
         // add the poll to the user's list
-        int userID = poll.getCreatorId();
-        User user = this.users.get(userID);
-        user.addPoll(poll);
+        user.addPoll(newPoll);
+
+        // add newly created poll to database
+        this.repository.save(newPoll);
 
         // register a topic with the same name
-        this.producer.registerTopic("Poll:" + poll.getId());
+        this.producer.registerTopic("Poll:" + newPoll.getId());
         // subscribe to the topic
-        this.consumer.subscribeToTopic("Poll:" + poll.getId());
+        this.consumer.subscribeToTopic("Poll:" + newPoll.getId());
 
-        return true;
+        return newPoll;
     }
 
     // user votes on poll
-    public boolean addVote(Vote vote) throws Exception {
-        Instant votePublished = Instant.now();
-        vote.setPublishedAt(votePublished);
-        // check if poll
-        if (this.polls.containsKey(vote.getPollId())) {
-            // check if user exists
-            if (this.users.containsKey(vote.getUserId())){
-                Poll poll = this.polls.get(vote.getPollId());
-                // check if user has not already voted
-                Set<Vote> votes = poll.getVotes();
-                for (Vote v : votes) {
-                    if (v.getUserId() == vote.getUserId()){
-                        return false;
-                    }
-                }
-                // check that voteOption is valid
-                if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
-                    // check that Vote is within published and deadline in order to create a valid vote
-                    if (vote.getPublishedAt().isAfter(poll.getPublishedAt()) && vote.getPublishedAt().isBefore(poll.getValidUntil())) {
-                        vote.setId(getVoteId());
-                        poll.addVote(vote);
-                        User user = this.users.get(vote.getUserId());
-                        user.addVote(vote);
-                        this.votes.put(vote.getId(), vote);
-
-                        // Publish message
-                        String message = user.getUsername() + " voted on poll with id = " + poll.getId();
-                                this.producer.publishMessage("Poll:" + poll.getId(), message, "vote.created");
-
-                        return true;
-                    }
-                }
-            } else {
-                // if user do not exists then there is an anonymous vote
-                Poll poll = this.polls.get(vote.getPollId());
-                // check that voteOption is valid
-                if (poll.getVoteOptions().contains(vote.getVoteOption()) ) {
-                    // check that Vote is within published and deadline in order to create a valid vote
-                    if (vote.getPublishedAt().isAfter(poll.getPublishedAt()) && vote.getPublishedAt().isBefore(poll.getValidUntil())) {
-                        vote.setId(getVoteId());
-                        poll.addVote(vote);
-                        this.votes.put(vote.getId(), vote);
-
-                        // Publish message
-                        String message = "anonymous voted on poll with id = " + poll.getId();
-                        this.producer.publishMessage("Poll:" + poll.getId(), message, "vote.created");
-
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    // user updates existing vote
-    public boolean updateVote(int pollId, int voteId, Vote vote) {
-        // check if poll and vote exists
-        if (!this.polls.containsKey(pollId) && !this.votes.containsKey(voteId)) {
-            return false;
-        }
-        // check if user has a vote in the poll
-        Poll poll = this.polls.get(pollId);
-        Set<Vote> votes = poll.getVotes();
-        boolean hasVoted = false;
-        for (Vote v : votes) {
-            if (v.getUserId() == vote.getUserId()){
-                hasVoted = true;
-                break;
-            }
-        }
-        if (hasVoted){
-            // check if new vote option is valid
-            User user = this.users.get(vote.getUserId());
-            VoteOption voteOption = vote.getVoteOption();
-            if (poll.getVoteOptions().contains(voteOption) ) {
-                // remove old vote from poll
-                poll.removeVote(voteId);
-                // remove old vote from user
-                user.removeVote(vote.getId());
-                // remove old vote from memory
-                this.votes.remove(voteId);
-                // save new vote
-                vote.setId(voteId); // keep the old voteID
-                vote.setPollId(pollId); // keep the same pollID
-                poll.addVote(vote);
-                user.addVote(vote);
-                this.votes.put(vote.getId(), vote);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean deletePoll(int id) {
+    public Vote addVote(VoteDto voteDto) throws Exception {
         // check if poll exists
-        if (this.polls.containsKey(id)) {
-            Poll poll = this.polls.get(id);
-            // remove poll connected to user
-            User user = this.users.get(poll.getCreatorId());
-            user.removePoll(poll);
-            // remove the votes
-            for (Vote vote : poll.getVotes()) {
-                User votedUser = this.users.get(vote.getUserId());
-                votedUser.removeVote(vote.getId());
-                this.votes.remove(vote.getId());
+        Poll poll = this.repository.findPollById(voteDto.getPollId());
+        Instant votePublished = Instant.now();
+        if (poll != null) {
+            // check if user exists
+            User user = this.repository.findUserById(voteDto.getUserId());
+            if (user != null){
+                VoteOption voteOption = this.repository.findVoteOptionById(voteDto.getVoteOption().getCaption(), poll.getId());
+                Vote vote = user.voteFor(voteOption, votePublished);
+
+                // save vote to db
+                this.repository.userVote(vote);
+
+                // Publish message
+                String message = "User with username = `" + user.getUsername() + "` voted on poll with id = " + poll.getId();
+                this.producer.publishMessage("Poll:" + poll.getId(), message, "vote.created");
+
+                return vote;
+            } else {
+                // if user do not exist then there is an anonymous vote
+                VoteOption voteOption = this.repository.findVoteOptionById(voteDto.getVoteOption().getCaption(), poll.getId());
+                Vote vote = new Vote(voteOption, votePublished);
+
+                // Publish message
+                String message = "anonymous voted on poll with id = " + poll.getId();
+                this.producer.publishMessage("Poll:" + poll.getId(), message, "vote.created");
+
+                return vote;
+                }
             }
-            // remove the poll from manager
-            this.polls.remove(id);
-            return true;
+        return null;
         }
-        return false;
     }
-}
