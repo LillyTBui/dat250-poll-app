@@ -13,4 +13,4 @@ To build the image I used the command `docker build -t poll/image`. When I ran t
 `docker run poll/image` I saw that the spring boot server ran, but I got connection refused 
 with Bruno. To solve this I needed to do port mapping with the command `docker run -p 8080:8080 poll/image`.
 
-- Link to the Dockerfile: 
+- Link to the Dockerfile: https://github.com/LillyTBui/dat250-poll-app/blob/docker/Dockerfile
