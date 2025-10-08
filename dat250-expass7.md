@@ -17,5 +17,5 @@ I got problems accessing the frontend project after running `docker compose up` 
 solution was to add `--host` flag in the CMD instruction of the frontend dockerfile.
 
 - Link to the backend dockerfile: https://github.com/LillyTBui/dat250-poll-app/blob/docker/Dockerfile
-- Link to the frontend dockerfile:
-- Link to the docker compose file:
+- Link to the frontend dockerfile: https://github.com/LillyTBui/dat250-poll-app/blob/docker/frontend/Dockerfile
+- Link to the docker compose file: https://github.com/LillyTBui/dat250-poll-app/blob/docker/compose.yaml
